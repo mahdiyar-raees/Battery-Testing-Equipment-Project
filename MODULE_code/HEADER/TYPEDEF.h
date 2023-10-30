@@ -15,7 +15,7 @@
 					uint32_t    start_buffer_set:1;
 					uint32_t    stop_first:1;
 					uint32_t    fire_or_not:1;
-					uint32_t    state_process_1:1;
+					uint32_t    calibration_f:1;
 					uint32_t    ask_data_trigger:1;
 					uint32_t    start_process_counter:1;
 					uint32_t    state_process_2:1;

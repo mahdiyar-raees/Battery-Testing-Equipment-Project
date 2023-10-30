@@ -433,8 +433,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 														
 																flag.flag_BIT.time_to_mode_bat =0;
 																battery_send_data = cal_mode(voltage_buffer,1);
-																flag.flag_BIT.mode_bt_has_done =1;
-																
+																flag.flag_BIT.mode_bt_has_done =1;																
 															} 
 														else
 															{
@@ -598,6 +597,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 			else if(htim->Instance == TIM10) // reverse voltage cheak
 				{
+					if(flag.flag_BIT.calibration_f)
+					{
+					SPI3_ON;	
+					SPI1_ON;	
+					if(odd_or_even==0)
+						{
+							battery_send_data = cal_mode(voltage_buffer,1);									
+							SPI3_OFF;								
+							delayUS(4);
+							trigg_spi(&hspi3);
+							return;
+						}					
+					else
+						{
+							shunt_send_data = cal_mode(current_buffer,2);							
+							SPI1_OFF;								
+							delayUS(4);
+							trigg_spi(&hspi1);
+							return;
+						}
+					}
+					else
+					{
 					if(odd_or_even==1)
 						{
 							odd_or_even =0;
@@ -606,63 +628,65 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 							SPI3_OFF;								
 							delayUS(4);
 							trigg_spi(&hspi3);
-						}	
-					else
-					{
-					odd_or_even= 1;
-					}
-
-						if(time_reverse_cnt>1000)
-							{
-								
-								time_reverse_cnt =0;
-								flag.flag_BIT.cheach_reverse_voltage_done =1;
-								HAL_TIM_Base_Stop_IT(&htim10);
-								flag.flag_BIT.check_gate_over_volage =1;
-								DAC_OFF();
-								DAC_OFF();
-								delayMS(10);
-								CONTACTOR_ON;
-								delayMS(100);
-								DAC_OFF();
-								CONTACTOR_ON;
-								delayMS(100);
-								DAC_OFF();
-								flag.flag_BIT.RV_not_check =1;
-								// if online test
-								if(flag.flag_BIT.reerse_before_start)
-								{
-									DAC_OFF();
-									ADC_BUFFER_t temp;
-									temp.ADC_DATA =0;
-									dac_set_value(temp);
-									timer9_cnt =0;
-									timer_9_waittime = 20;
-									flag.flag_BIT.timer9_start =1;
-									HAL_TIM_Base_Start_IT(&htim9);
-									trigger_rst();
-									battery_moving_sum =0;
-									shunt_moving_sum = 0;
-									delayMS(100);
-									if(HAL_GPIO_ReadPin(GATE_OF_ALARM_GPIO_Port,GATE_OF_ALARM_Pin)==0)
-											{
-												MY_Error_HANDLE(gate_over_voltage);
-												Error_code = gate_over_voltage;
-												return;
-											}										
-									
-									TIM5->CNT =0;
-									HAL_TIM_Base_Start_IT(&htim5);
-											
-											
-									dac_set_value(executing_adc_valu);		
-									uint8_t can_data[8];	
-									can_data[1] = MODULE_BOARD_ADDRESS;
-									can_data[0] = 4+ flag.flag_BIT.fire_or_not;
-									can_data[2] = (4 );
-									CAN_SEND_DATA(can_data,MAIN_BOARD_ADDRESS,8);
-								}
 							
+						}	
+						else
+							{
+							odd_or_even= 1;
+							}
+
+								if(time_reverse_cnt>1000)
+									{
+										
+										time_reverse_cnt =0;
+										flag.flag_BIT.cheach_reverse_voltage_done =1;
+										HAL_TIM_Base_Stop_IT(&htim10);
+										flag.flag_BIT.check_gate_over_volage =1;
+										DAC_OFF();
+										DAC_OFF();
+										delayMS(10);
+										CONTACTOR_ON;
+										delayMS(100);
+										DAC_OFF();
+										CONTACTOR_ON;
+										delayMS(100);
+										DAC_OFF();
+										flag.flag_BIT.RV_not_check =1;
+										// if online test
+										if(flag.flag_BIT.reerse_before_start)
+										{
+											DAC_OFF();
+											ADC_BUFFER_t temp;
+											temp.ADC_DATA =0;
+											dac_set_value(temp);
+											timer9_cnt =0;
+											timer_9_waittime = 20;
+											flag.flag_BIT.timer9_start =1;
+											HAL_TIM_Base_Start_IT(&htim9);
+											trigger_rst();
+											battery_moving_sum =0;
+											shunt_moving_sum = 0;
+											delayMS(100);
+											if(HAL_GPIO_ReadPin(GATE_OF_ALARM_GPIO_Port,GATE_OF_ALARM_Pin)==0)
+													{
+														MY_Error_HANDLE(gate_over_voltage);
+														Error_code = gate_over_voltage;
+														return;
+													}										
+											
+											TIM5->CNT =0;
+											HAL_TIM_Base_Start_IT(&htim5);
+													
+													
+											dac_set_value(executing_adc_valu);		
+											uint8_t can_data[8];	
+											can_data[1] = MODULE_BOARD_ADDRESS;
+											can_data[0] = 4+ flag.flag_BIT.fire_or_not;
+											can_data[2] = (4 );
+											CAN_SEND_DATA(can_data,MAIN_BOARD_ADDRESS,8);
+										}
+									
+									}
 							}
 				}
 			
@@ -1116,8 +1140,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																				timer_9_waittime = 20;
 																				flag.flag_BIT.timer9_start =1;
 																				HAL_TIM_Base_Start_IT(&htim9);
+																				flag.flag_BIT.calibration_f =1;
 																				system_state = calibration;
 																				time_counter = 0;
+																				TIM10->CNT =0;
+																				HAL_TIM_Base_Start_IT(&htim10);
 																				wait_time = 40000000; 
 																				executing_adc_valu.adc_buff[0] =rx_buffer[2];
 																				executing_adc_valu.adc_buff[1] =rx_buffer[3];
@@ -1125,11 +1152,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																				power_protection 	 = OPP_PROTECTION;
 																				current_protection = OCP_PROTECTION;				
 																				executing_command.detail.test_mode =0;
+																				HAL_TIM_PWM_Stop(&htim14,TIM_CHANNEL_1);	
+
 																				FAN_ON;
 																				
 																				last_fan_value= 20;
 																				fan_duty = 80;
 																				FAN_CONFIG(fan_duty);
+																				HAL_TIM_PWM_Start(&htim14,TIM_CHANNEL_1);
 																				TIM4->CNT=0;
 																				delayUS(2);
 																				if(HAL_GPIO_ReadPin(GATE_OF_ALARM_GPIO_Port,GATE_OF_ALARM_Pin)==0)
@@ -1153,8 +1183,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																				__HAL_TIM_CLEAR_IT(&htim4,TIM_IT_UPDATE);
 																				HAL_TIM_Base_Stop_IT(&htim4);																				
 																				HAL_TIM_PWM_Start(&htim14,TIM_CHANNEL_1);
-																				TIM5->CNT =0;
-																				HAL_TIM_Base_Start_IT(&htim5);
+
 																				delayUS(100);
 																				flag.flag_BIT.check_gate_over_volage =0;
 																				dac_set_value(executing_adc_valu);
@@ -1878,11 +1907,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																			HAL_TIM_Base_Stop_IT(&htim6);
 																			__HAL_TIM_CLEAR_IT(&htim6,TIM_IT_UPDATE);		
 																			executing_command.detail.test_mode =0;
-																			FAN_ON;
+																				HAL_TIM_Base_Start_IT(&htim10);
 																			CONTACTOR_ON;	
 																			last_fan_value= 20;
 																			fan_duty = 80;
-																			
+																
+																				FAN_ON;
 																			fna_turn_off_counter =0;
 																			flag.flag_BIT.fan_turn_off_flag =0;
 																				timer9_cnt =0;
@@ -1891,6 +1921,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																				HAL_TIM_Base_Start_IT(&htim9);
 																			__HAL_TIM_CLEAR_IT(&htim4,TIM_IT_UPDATE);	
 																			HAL_TIM_Base_Stop_IT(&htim4);
+																			HAL_TIM_PWM_Stop(&htim14,TIM_CHANNEL_1);
 																			FAN_CONFIG(fan_duty);
 																			//__HAL_TIM_CLEAR_IT(&htim4,TIM_IT_UPDATE);	
 																			HAL_TIM_PWM_Start(&htim14,TIM_CHANNEL_1);
@@ -1906,7 +1937,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																						return;	
 																					}
 																				
-																			HAL_TIM_Base_Start_IT(&htim5);
+																			HAL_TIM_Base_Start_IT(&htim10);
 																			//__HAL_TIM_CLEAR_IT(&htim3,TIM_IT_UPDATE);	
 																			//HAL_TIM_Base_Start_IT(&htim3);
 																			
@@ -1924,7 +1955,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																{
 																	uint8_t can_data[8];
 																	flag.flag_BIT.check_gate_over_volage =0;
-																	flag.flag_BIT.FAN_IS_ON=1;			
+																	flag.flag_BIT.FAN_IS_ON=1;
+																	flag.flag_BIT.time_to_mode_cur =1;
+																	flag.flag_BIT.time_to_mode_bat =1;
+																	mean_voltage.data  = 	(READ_VOLTAGE_CALIBRATION_ALPHA.data* battery_send_data + READ_VOLTAGE_CALIBRATION_BETA.data );
+																	mean_shunt.data 	 = 	(READ_SHUNT_CALIBRATION_ALPHA.data  * shunt_send_data +READ_SHUNT_CALIBRATION_BETA.data);
 																	switch(rx_buffer[2])
 																		{
 																			case 0:
@@ -2102,7 +2137,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 																				__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_UPDATE);
 																				__HAL_TIM_ENABLE(&htim4);																					
 																				
-																				HAL_TIM_Base_Stop_IT(&htim5);
+																				HAL_TIM_Base_Stop_IT(&htim10);
 																				__HAL_TIM_CLEAR_IT(&htim5,TIM_IT_UPDATE);
 																				HAL_TIM_Base_Stop_IT(&htim5);
 																				CAN_SEND_DATA(data,MAIN_BOARD_ADDRESS,8);

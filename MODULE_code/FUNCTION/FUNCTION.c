@@ -368,6 +368,8 @@ void INIT_STATE(void)
 {
 		HAL_TIM_Base_Stop_IT(&htim5);	
 	__HAL_TIM_CLEAR_IT(&htim5,TIM_IT_UPDATE);	
+		__HAL_TIM_CLEAR_IT(&htim10,TIM_IT_UPDATE);				
+	HAL_TIM_Base_Stop_IT(&htim10);
 	shunt_send_data =0;
 	battery_send_data=0;
 	battery_cnt =0;
@@ -377,6 +379,7 @@ void INIT_STATE(void)
 	flag.flag_BIT.mode_bt_has_done =0;
 	flag.flag_BIT.mode_cu_has_done =0;
 	flag.flag_BIT.wait_to_run_erro =0;
+	flag.flag_BIT.calibration_f =0;
 	flag.flag_BIT.fire_or_not=0;
 	//test
 	timer6_counter =0;
