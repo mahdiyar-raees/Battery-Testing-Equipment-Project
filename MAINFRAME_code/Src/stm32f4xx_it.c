@@ -1353,20 +1353,20 @@ void RX_function(uint8_t x)
 																					{
 																						{
 																						
-																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[0] = calibration_cof_buffer[3];
-																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[1] = calibration_cof_buffer[4];
-																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[2] = calibration_cof_buffer[5];
-																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[3] = calibration_cof_buffer[6];
+																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[0] = calibration_cof_buffer[12];
+																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[1] = calibration_cof_buffer[13];
+																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[2] = calibration_cof_buffer[14];
+																						READ_VOLTAGE_CALIBRATION_ALPHA.byte[3] = calibration_cof_buffer[15];
 
 																						AT24_Write_8(0,READ_VOLTAGE_CALIBRATION_ALPHA.byte[0]);
 																						AT24_Write_8(1,READ_VOLTAGE_CALIBRATION_ALPHA.byte[1]);
 																						AT24_Write_8(2,READ_VOLTAGE_CALIBRATION_ALPHA.byte[2]);
 																						AT24_Write_8(3,READ_VOLTAGE_CALIBRATION_ALPHA.byte[3]);
 
-																						READ_VOLTAGE_CALIBRATION_BETA.byte[0] = calibration_cof_buffer[7];
-																						READ_VOLTAGE_CALIBRATION_BETA.byte[1] = calibration_cof_buffer[8];
-																						READ_VOLTAGE_CALIBRATION_BETA.byte[2] = calibration_cof_buffer[9];
-																						READ_VOLTAGE_CALIBRATION_BETA.byte[3] = calibration_cof_buffer[10];
+																						READ_VOLTAGE_CALIBRATION_BETA.byte[0] = calibration_cof_buffer[16];
+																						READ_VOLTAGE_CALIBRATION_BETA.byte[1] = calibration_cof_buffer[17];
+																						READ_VOLTAGE_CALIBRATION_BETA.byte[2] = calibration_cof_buffer[18];
+																						READ_VOLTAGE_CALIBRATION_BETA.byte[3] = calibration_cof_buffer[19];
 																						//READ_VOLTAGE_CALIBRATION_BETA = *(float*)(rx_buffer+3);
 
 																						AT24_Write_8(4,READ_VOLTAGE_CALIBRATION_BETA.byte[0]);
@@ -1473,7 +1473,7 @@ void RX_function(uint8_t x)
 	}
 }
 else{
-			uint8_t	PC_data[10] = {0XFF,0XFF,0XFF,0,0,0,0,0,0,0};
+			uint8_t	PC_data[10] = {0XEE,0XEE,0XEE,0XEE,0,0,0,0,0,0};
 			PC_SEND(PC_data,10);
 		}	
 }

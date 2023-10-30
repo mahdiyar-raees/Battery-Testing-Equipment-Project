@@ -616,6 +616,18 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 										time_counter.main_data =0;
 										delayMS(1000);
 										flag.flag_BIT.send_or_Nsend =1;
+										for(register uint8_t temp_counter = 0 ; temp_counter<35;temp_counter++)
+													{
+														get_data_buffer[temp_counter] = 0;
+													}
+										get_data_buffer[3] = 1; 
+										get_data_buffer[4] = 3;
+										get_data_buffer[0] = first_frame_1;				
+										get_data_buffer[1] = first_frame_2;
+										get_data_buffer[2] = first_frame_3;
+										get_data_buffer[35] = second_frame_1;				
+										get_data_buffer[36] = second_frame_2;
+										get_data_buffer[37] = second_frame_3;				
 										HAL_TIM_Base_Start_IT(&htim5);
 										
 										detenator_value = (DAC_cal_set_alph * detenator_value) + DAC_cal_set_beta;
@@ -1175,19 +1187,11 @@ send_finish_counter =0;
 
 __HAL_UART_ENABLE_IT(&huart4, UART_IT_RXNE);
 
+	READ_VOLTAGE_CALIBRATION_ALPHA.data = 1.2072;
+	READ_VOLTAGE_CALIBRATION_BETA.data  = 3.2802;
 
 
 
-AT24_Read_8(0,&READ_VOLTAGE_CALIBRATION_ALPHA.byte[0]);
-AT24_Read_8(1,&READ_VOLTAGE_CALIBRATION_ALPHA.byte[1]);
-AT24_Read_8(2,&READ_VOLTAGE_CALIBRATION_ALPHA.byte[2]);
-AT24_Read_8(3,&READ_VOLTAGE_CALIBRATION_ALPHA.byte[3]);
-
-
-AT24_Read_8(4,&READ_VOLTAGE_CALIBRATION_BETA.byte[0]);
-AT24_Read_8(5,&READ_VOLTAGE_CALIBRATION_BETA.byte[1]);
-AT24_Read_8(6,&READ_VOLTAGE_CALIBRATION_BETA.byte[2]);
-AT24_Read_8(7,&READ_VOLTAGE_CALIBRATION_BETA.byte[3]);
 																									
 get_data_buffer[3] = 1; 
 get_data_buffer[4] = 3;
@@ -1214,8 +1218,9 @@ reset_state();
 	cof_buff[104] = READ_VOLTAGE_CALIBRATION_BETA.byte[2];
 	cof_buff[105] =	READ_VOLTAGE_CALIBRATION_BETA.byte[3];
 	
-	READ_VOLTAGE_CALIBRATION_ALPHA.data = 1.2072;
-	READ_VOLTAGE_CALIBRATION_BETA.data  = 3.2802;
+//	READ_VOLTAGE_CALIBRATION_ALPHA.data = 1.2072;
+//	READ_VOLTAGE_CALIBRATION_BETA.data  = 3.2802;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

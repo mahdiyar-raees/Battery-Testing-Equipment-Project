@@ -1,5 +1,5 @@
 #include "AT24Cxx.h"
-#include <FUNCTION.h>
+
 
 
 static unsigned eeprom_address = EEPROM_ADDRESS << 1;
@@ -69,11 +69,11 @@ static HAL_StatusTypeDef AT24Cxx_WriteReadEEPROM(unsigned address, const void* s
 
 			if(write)
 			{
-				delayMS(EEPROM_WRITE);
+				HAL_Delay(EEPROM_WRITE);
 			}
 			else
 			{
-				delayMS(EEPROM_WRITE / 2);
+				HAL_Delay(EEPROM_WRITE / 2);
 			}
 	}
 
@@ -96,7 +96,7 @@ HAL_StatusTypeDef AT24_Read_8(uint16_t Addr, void *Data)
 	HAL_StatusTypeDef result;
 	
 	result = HAL_I2C_Mem_Read(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, pdata, 1, EEPROM_TIMEOUT);
-	delayMS(1);
+	HAL_Delay(1);
 	
 	return result;
 }
@@ -107,7 +107,7 @@ HAL_StatusTypeDef AT24_Read_16(uint16_t Addr, void *Data)
 	HAL_StatusTypeDef result;
 	
 	result = HAL_I2C_Mem_Read(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, pdata, 2, EEPROM_TIMEOUT);
-	delayMS(1);
+	HAL_Delay(1);
 	
 	return result;
 }
@@ -118,7 +118,7 @@ HAL_StatusTypeDef AT24_Read_32(uint16_t Addr, void *Data)
 	HAL_StatusTypeDef result;
 	
 	result = HAL_I2C_Mem_Read(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, pdata, 4, EEPROM_TIMEOUT);
-	delayMS(1);
+	HAL_Delay(1);
 	
 	return result;
 }
@@ -128,7 +128,7 @@ HAL_StatusTypeDef AT24_Write_8(uint16_t Addr, uint8_t Data)
 	HAL_StatusTypeDef result;
 	
 	result = HAL_I2C_Mem_Write(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, &Data, 1, EEPROM_TIMEOUT);
-	delayMS(EEPROM_WRITE);
+	HAL_Delay(EEPROM_WRITE);
 	
 	return result;
 }
@@ -141,7 +141,7 @@ HAL_StatusTypeDef AT24_Write_16(uint16_t Addr, uint16_t Data)
 	Temp_EE[0] = (uint8_t)(Data);
 	
 	result = HAL_I2C_Mem_Write(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, Temp_EE, 2, EEPROM_TIMEOUT);
-	delayMS(EEPROM_WRITE);
+	HAL_Delay(EEPROM_WRITE);
 	
 	return result;
 }
@@ -156,7 +156,7 @@ HAL_StatusTypeDef AT24_Write_32(uint16_t Addr, uint32_t Data)
 	Temp_EE[0] = (uint8_t)(Data);
 	
 	result = HAL_I2C_Mem_Write(&EEPROM_I2C, eeprom_address, Addr, I2C_MEMADD_SIZE_16BIT, Temp_EE, 4, EEPROM_TIMEOUT);
-	delayMS(EEPROM_WRITE);
+	HAL_Delay(EEPROM_WRITE);
 	
 	return result;
 }

@@ -98,6 +98,7 @@ void command_handler(uint8_t get_command)
 												start_counter =0;
 												time_counter.main_data=0;
 												HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
+
 												while(1)
 													{
 														if(available_module[start_counter]==1)
@@ -554,6 +555,7 @@ void 		START_command_handler(uint8_t *rx_buffer)
 		__HAL_TIM_CLEAR_IT(&htim6,TIM_IT_UPDATE);	
 		HAL_TIM_Base_Stop_IT(&htim6);
 		timer_6_counter=0;
+		
 		while(1)
 				{
 					if(available_module[start_counter] && (start_counter < 6))
@@ -693,6 +695,7 @@ void reset_state(void)
 			uint8_t	can_data[8] = {0xFE,0xFE,0xFE,0xFE,0xFE,0xFE,0xFE,0xFE};
 			CAN_SEND_DATA(can_data,module_commen_address,8);
 		}
+		
 		in_syncronize.main_data =0;
 		process_valid= 2;
 		PC_bus_busy=0;
@@ -728,18 +731,8 @@ void reset_state(void)
 		system_state = init;
 		flag.flag_BIT.panel_get_data_trigger =0;
 		dac_off();
-for(register uint8_t temp_counter = 0 ; temp_counter<35;temp_counter++)
-{
-	get_data_buffer[temp_counter] = 0;
-}
-get_data_buffer[3] = 1; 
-get_data_buffer[4] = 3;
-get_data_buffer[0] = first_frame_1;				
-get_data_buffer[1] = first_frame_2;
-get_data_buffer[2] = first_frame_3;
-get_data_buffer[35] = second_frame_1;				
-get_data_buffer[36] = second_frame_2;
-get_data_buffer[37] = second_frame_3;		
+
+	
 		flag.flag_BIT.flag_ask_for_data =1;
 
 	HAL_CAN_ActivateNotification(&hcan2,CAN_IT_RX_FIFO0_MSG_PENDING |  \
